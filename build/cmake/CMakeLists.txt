@@ -1,71 +1,37 @@
-cmake_minimum_required(VERSION 3.10)
-
-include(GNUInstallDirs)
+cmake_minimum_required(VERSION 3.30)
 
 set(name jsondom)
-
 project(${name})
 
-# ============================
-# = find dependency packages =
+if(NOT IGAGIS_CMAKE_COMMON_INCLUDED)
+    set(dir "${CMAKE_CURRENT_SOURCE_DIR}/../../tool-configs/cmake")
+    if(NOT EXISTS "${dir}/common.cmake")
+        if(DEFINED ENV{IGAGIS_TOOL_CONFIGS})
+            set(url "$ENV{IGAGIS_TOOL_CONFIGS}")
+        else()
+            set(url "https://github.com/cppfw/tool-configs")
+        endif()
+        file(MAKE_DIRECTORY "${dir}")
+        file(DOWNLOAD "${url}/raw/refs/heads/main/cmake/common.cmake" "${dir}/common.cmake")
+    endif()
+    include("${dir}/common.cmake")
+endif()
 
-find_package(utki CONFIG REQUIRED)
-find_package(papki CONFIG REQUIRED)
-find_package(ZLIB REQUIRED)
-
-# ============================
-
-file(GLOB_RECURSE srcs "../../src/${name}/*.cpp")
-
-add_library(
-    ${name}
-    STATIC
-    ${srcs}
+set(srcs)
+add_source_directory(srcs
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../src/${name}"
+    PATTERNS "*.cpp" "*.hpp"
+    RECURSIVE
 )
 
-target_compile_features(${name} PUBLIC cxx_std_17)
-set_target_properties(${name} PROPERTIES CXX_STANDARD_REQUIRED ON)
-set_target_properties(${name} PROPERTIES CXX_EXTENSIONS OFF)
-
-target_include_directories(
-    ${name}
-    INTERFACE
-        $<BUILD_INTERFACE:>
-        $<INSTALL_INTERFACE:include>
-)
-
-target_link_libraries(
-    ${name}
-    PUBLIC
-        utki::utki
-        papki::papki
-)
-
-# install library header files preserving directory hierarchy
-install(
-    DIRECTORY
+declare_library(${name}
+    SOURCES
+        ${srcs}
+    PUBLIC_INCLUDE_DIRECTORIES
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src"
+    INSTALL_INCLUDE_DIRECTORIES
         "${CMAKE_CURRENT_SOURCE_DIR}/../../src/${name}"
-    DESTINATION
-        "${CMAKE_INSTALL_INCLUDEDIR}"
-    FILES_MATCHING PATTERN
-        "*.hpp"
-)
-
-install(
-    TARGETS
-        ${name}
-    EXPORT # generate cmake configs
-        ${name}-config
-)
-
-# install cmake configs
-install(
-    EXPORT
-        ${name}-config
-    FILE
-        ${name}-config.cmake
-    DESTINATION
-        ${CMAKE_INSTALL_DATAROOTDIR}/${name}
-    NAMESPACE
-        ${name}::
+    DEPENDENCIES
+        utki
+        papki
 )
