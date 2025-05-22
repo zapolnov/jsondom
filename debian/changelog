@@ -1,3 +1,15 @@
+libjsondom (0.1.32) unstable; urgency=medium
+
+  * cmake: ext deps
+
+ -- Ivan Gagis <igagis@gmail.com>  Tue, 20 May 2025 23:45:02 +0300
+
+libjsondom (0.1.31) unstable; urgency=medium
+
+  * cmake: myci
+
+ -- Ivan Gagis <igagis@gmail.com>  Sun, 18 May 2025 13:30:24 +0300
+
 libjsondom (0.1.30) unstable; urgency=medium
 
   * vcpkg
